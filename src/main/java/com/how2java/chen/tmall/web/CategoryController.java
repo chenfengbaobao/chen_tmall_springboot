@@ -15,6 +15,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * @author apple
+ * <p>
+ * <p>
+ * 访问地址URL
+ * <p>
+ * http://localhost:8091/tmall_springboot/admin_category_list#nowhere
+ */
 @RestController
 public class CategoryController {
     @Autowired

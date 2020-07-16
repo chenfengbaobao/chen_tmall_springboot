@@ -70,10 +70,14 @@ public class WebLogAspect {
 
         writeLog(proceedingJoinPoint, startTime);
 
-        // 处理返回对象
+
         Object proceed = null;
         try {
             proceed = proceedingJoinPoint.proceed();
+
+            // 处理返回对象
+            processOutPutObj(proceed);
+
         } catch (FileNotFoundException ex) {
             log.info("输出对象是文件");
             return "输出对象是文件";
@@ -83,7 +87,6 @@ public class WebLogAspect {
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
-        processOutPutObj(proceed);
 
         return proceed;
     }
