@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 
 @Aspect
@@ -55,40 +56,44 @@ public class WebLogAspect {
     /**
      * 环绕
      *
-     * @param proceedingJoinPoint
+     * @param joinPoint
      * @return
      * @throws Throwable
      */
     @Around("webLog()")
-    public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+    public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
 
         long startTime = System.currentTimeMillis();
 
 
-        // 处理输入参数
-        processInputArg(proceedingJoinPoint.getArgs());
-
-        writeLog(proceedingJoinPoint, startTime);
-
-
-        Object proceed = null;
+        Object returnValue = null;
         try {
-            proceed = proceedingJoinPoint.proceed();
 
-            // 处理返回对象
-            processOutPutObj(proceed);
+            // 处理输入参数
+            processInputArg(joinPoint.getArgs());
+
+            returnValue = joinPoint.proceed();
+
+
+            writeLog(joinPoint, returnValue, startTime);
+
+
+//            处理返回对象
+            processOutPutObj(returnValue);
 
         } catch (FileNotFoundException ex) {
             log.info("输出对象是文件");
+
             return "输出对象是文件";
         } catch (IOException ex) {
             log.info("输出对象是文件");
+
             return "输出对象是文件";
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
 
-        return proceed;
+        return returnValue;
     }
 
 
@@ -107,10 +112,9 @@ public class WebLogAspect {
      * AOP 记录日志信息
      *
      * @param joinPoint
-     * @param startTime
-     * @throws Throwable
+     * @param responseValue
      */
-    private void writeLog(ProceedingJoinPoint joinPoint, long startTime) {
+    private void writeLog(ProceedingJoinPoint joinPoint, Object responseValue, long startTime) {
         StringBuilder sb = new StringBuilder(2000);
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -129,7 +133,6 @@ public class WebLogAspect {
 
         sb.append("\r\n    HTTP Method：");
         sb.append(request.getMethod());
-
 
         // 打印调用 controller 的全路径以及执行方法
         String method = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
@@ -164,19 +167,13 @@ public class WebLogAspect {
 
 
         sb.append("\r\n    请求响应结果：");
-        Object proceed = null;
-        try {
-            proceed = joinPoint.proceed();
-        } catch (FileNotFoundException ex) {
-            proceed = "输出对象是文件";
+        if (Objects.isNull(responseValue)) {
 
-        } catch (IOException ex) {
-            proceed = "输出对象是文件";
+            sb.append("响应结果为空");
+        } else {
 
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            sb.append(JSON.toJSONString(responseValue));
         }
-        sb.append(JSON.toJSONString(proceed));
         // 执行耗时
         sb.append("\r\n    请求耗时：");
         sb.append(System.currentTimeMillis() - startTime);
@@ -200,16 +197,19 @@ public class WebLogAspect {
 
         if (args != null && args.length > 0) {
 
-            Object arg = args[0];
-            if (arg instanceof PageQuery) {
-                PageQuery pageQuery = (PageQuery) arg;
+
+            for (Object arg : args) {
+                if (arg instanceof PageQuery) {
+                    PageQuery pageQuery = (PageQuery) arg;
 
 
-                log.info("pageQuery before :{}", JSON.toJSON(pageQuery));
+                    log.info("pageQuery before :{}", JSON.toJSON(pageQuery));
 
-                pageQuery.setStart(pageQuery.getStart() + 1);
+                    pageQuery.setStart(pageQuery.getStart() + 1);
 
-                log.info("pageQuery after  :{}", JSON.toJSON(pageQuery));
+                    log.info("pageQuery after  :{}", JSON.toJSON(pageQuery));
+                }
+
             }
 
         }
@@ -228,15 +228,25 @@ public class WebLogAspect {
         if (null == proceed) {
             return;
         }
+
+
         if (proceed instanceof Page4Navigator) {
             Page4Navigator page4Navigator = (Page4Navigator) proceed;
 
 
             log.info("page4Navigator before :{}", JSON.toJSON(page4Navigator));
 
-            page4Navigator.setNumber(page4Navigator.getNumber() - 1);
 
-            log.info("page4Navigator  after :{}", JSON.toJSON(page4Navigator));
+            if (page4Navigator.isLast()) {
+                log.info("page4Navigator  is     last");
+            } else {
+
+                page4Navigator.setNumber(page4Navigator.getNumber() - 1);
+
+                log.info("page4Navigator  after :{}", JSON.toJSON(page4Navigator));
+            }
+
+
         }
     }
 
