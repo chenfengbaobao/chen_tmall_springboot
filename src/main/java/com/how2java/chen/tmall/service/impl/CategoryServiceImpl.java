@@ -4,10 +4,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.how2java.chen.tmall.dao.CategoryMapper;
 import com.how2java.chen.tmall.pojo.Category;
+import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.service.CategoryService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
@@ -68,5 +70,34 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void update(Category bean) {
         categoryMapper.updateByPrimaryKeySelective(bean);
+    }
+
+    @Override
+    public void removeCategoryFromProduct(List<Category> categories) {
+        for (Category category : categories) {
+            removeCategoryFromProduct(category);
+        }
+    }
+
+    @Override
+    public void removeCategoryFromProduct(Category category) {
+        List<Product> products = category.getProducts();
+
+        if (!CollectionUtils.isEmpty(products)) {
+            for (Product product : products) {
+                product.setCategory(null);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(products)) {
+            List<List<Product>> productsByRow = category.getProductsByRow();
+            for (List<Product> productList : productsByRow) {
+                for (Product product : productList) {
+                    product.setCategory(null);
+                }
+            }
+        }
+
+
     }
 }

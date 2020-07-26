@@ -19,4 +19,11 @@ public interface CategoryService {
     Category get(int id);
 
     void update(Category bean);
+
+    void removeCategoryFromProduct(List<Category> categories);
+
+
+    void removeCategoryFromProduct(Category category);
+
+
 }
