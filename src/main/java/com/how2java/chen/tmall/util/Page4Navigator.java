@@ -73,7 +73,7 @@ public class Page4Navigator<T> {
         totalPages = pageFromJPA.getPages();
 
 
-        number = pageFromJPA.getPageNum() - 1;
+        number = pageFromJPA.getPageNum();
 
         totalElements = pageFromJPA.getTotal();
 

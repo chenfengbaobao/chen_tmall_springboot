@@ -40,7 +40,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product get(int id) {
-        return productMapper.selectByPrimaryKey(id);
+
+        Product product = productMapper.selectByPrimaryKey(id);
+
+        setCategory(product);
+
+        return product;
     }
 
     @Override
@@ -63,8 +68,18 @@ public class ProductServiceImpl implements ProductService {
 
         PageHelper.startPage(start, size);
         List<Product> products = productMapper.selectByExample(example);
+        for (Product product : products) {
+            setCategory(product);
+        }
         PageInfo<Product> pageInfo = new PageInfo<>(products);
 
         return new Page4Navigator<>(pageInfo, navigatePages);
+    }
+
+
+    private void setCategory(Product product) {
+        Category category = categoryService.get(product.getCid());
+
+        product.setCategory(category);
     }
 }

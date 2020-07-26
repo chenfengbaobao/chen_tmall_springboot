@@ -1,5 +1,6 @@
 package com.how2java.chen.tmall.pojo;
 
+import com.how2java.chen.tmall.base.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -16,12 +17,9 @@ import java.util.Date;
 @Table(name = "product")
 @Entity
 @Data
-public class Product {
-
-    private int id;
+public class Product extends BaseEntity {
 
 
-    /// TODO 待修改
     @Column(name = "cid")
     private int cid;
 
@@ -43,6 +41,9 @@ public class Product {
 
     @Column(name = "createDate")
     private Date createDate;
+
+    @Transient
+    private ProductImage firstProductImage;
 
 
 }

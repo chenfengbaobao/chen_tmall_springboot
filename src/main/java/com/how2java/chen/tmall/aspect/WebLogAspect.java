@@ -61,7 +61,7 @@ public class WebLogAspect {
      * @throws Throwable
      */
     @Around("webLog()")
-    public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object doAround(ProceedingJoinPoint joinPoint) {
 
         long startTime = System.currentTimeMillis();
 
@@ -82,14 +82,17 @@ public class WebLogAspect {
             processOutPutObj(returnValue);
 
         } catch (FileNotFoundException ex) {
-            log.info("输出对象是文件");
+            log.info("FileNotFoundException.输出对象是文件");
 
-            return "输出对象是文件";
+            return "FileNotFoundException.输出对象是文件";
         } catch (IOException ex) {
-            log.info("输出对象是文件");
+            log.info("IOException.输出对象是文件");
 
-            return "输出对象是文件";
+            return "IOException.输出对象是文件";
         } catch (Throwable throwable) {
+            log.info("有异常抛出.Error.WebLogAspect.expection:{}", JSON.toJSONString(throwable));
+
+            returnValue = throwable;
             throwable.printStackTrace();
         }
 

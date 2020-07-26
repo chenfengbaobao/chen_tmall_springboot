@@ -2,7 +2,7 @@ package com.how2java.chen.tmall.web;
 
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.query.PageQuery;
-import com.how2java.chen.tmall.service.CategoryService;
+import com.how2java.chen.tmall.service.ProductImageService;
 import com.how2java.chen.tmall.service.ProductService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,15 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private CategoryService categoryService;
+    private ProductImageService productImageService;
 
 
     @GetMapping("/categories/{cid}/products")
     public Page4Navigator<Product> list(@PathVariable("cid") int cid, PageQuery pageQuery) {
+        Page4Navigator<Product> page = productService.list(cid, pageQuery.getStart(), pageQuery.getSize(), pageQuery.getNavigatePages());
 
-        return productService.list(cid, pageQuery.getStart(), pageQuery.getSize(), pageQuery.getNavigatePages());
+        productImageService.setFirstProductImage(page.getContent());
+        return page;
     }
 
 
