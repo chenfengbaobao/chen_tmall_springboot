@@ -2,6 +2,7 @@ package com.how2java.chen.tmall.service;
 
 import com.how2java.chen.tmall.pojo.Order;
 import com.how2java.chen.tmall.pojo.OrderItem;
+import com.how2java.chen.tmall.pojo.Product;
 
 import java.util.List;
 
@@ -17,7 +18,21 @@ public interface OrderItemService {
 
     void fill(Order order);
 
+    void update(OrderItem orderItem);
+
+    void add(OrderItem orderItem);
+
+    void delete(int id);
+
+    OrderItem get(int id);
+
+    int getSaleCount(Product product);
+
 
     List<OrderItem> listByOrder(Order order);
+
+
+    List<OrderItem> listByProduct(Product product);
+
 
 }

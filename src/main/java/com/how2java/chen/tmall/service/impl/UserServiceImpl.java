@@ -8,6 +8,7 @@ import com.how2java.chen.tmall.service.UserService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
@@ -40,5 +41,47 @@ public class UserServiceImpl implements UserService {
     @Override
     public User get(int id) {
         return userMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public boolean isExist(String name) {
+
+        List<User> users = getByName(name);
+
+
+        return !CollectionUtils.isEmpty(users);
+    }
+
+    @Override
+    public List<User> getByName(String name) {
+
+        Example example = new Example(User.class);
+        example.createCriteria()
+                .andEqualTo("name", name);
+
+        List<User> users = userMapper.selectByExample(example);
+
+        return users;
+    }
+
+    @Override
+    public void add(User user) {
+        userMapper.insertUseGeneratedKeys(user);
+    }
+
+    @Override
+    public User getByNameAndPassword(String name, String password) {
+
+        Example example = new Example(User.class);
+        example.createCriteria()
+                .andEqualTo("name", name)
+                .andEqualTo("password", password);
+
+        List<User> users = userMapper.selectByExample(example);
+
+        if (!CollectionUtils.isEmpty(users)) {
+            return users.get(0);
+        }
+        return null;
     }
 }

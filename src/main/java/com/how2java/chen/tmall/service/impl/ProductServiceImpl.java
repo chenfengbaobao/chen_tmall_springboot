@@ -6,9 +6,7 @@ import com.google.common.collect.Lists;
 import com.how2java.chen.tmall.dao.ProductMapper;
 import com.how2java.chen.tmall.pojo.Category;
 import com.how2java.chen.tmall.pojo.Product;
-import com.how2java.chen.tmall.service.CategoryService;
-import com.how2java.chen.tmall.service.ProductImageService;
-import com.how2java.chen.tmall.service.ProductService;
+import com.how2java.chen.tmall.service.*;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +30,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductImageService productImageService;
+
+    @Autowired
+    private OrderItemService orderItemService;
+
+    @Autowired
+    private ReviewService reviewService;
 
 
     @Override
@@ -139,10 +143,38 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.selectByExample(example);
     }
 
+    @Override
+    public void setSaleAndReviewNumber(List<Product> products) {
+
+        for (Product product : products) {
+            setSaleAndReviewNumber(product);
+        }
+    }
+
+    @Override
+    public void setSaleAndReviewNumber(Product product) {
+
+
+        // 销量
+        int saleCount = orderItemService.getSaleCount(product);
+
+
+        // 评论
+        int count = reviewService.getCount(product);
+
+        product.setSaleCount(saleCount);
+
+        product.setReviewCount(count);
+
+
+    }
+
 
     private void setCategory(Product product) {
         Category category = categoryService.get(product.getCid());
 
         product.setCategory(category);
     }
+
+
 }

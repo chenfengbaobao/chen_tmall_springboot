@@ -57,4 +57,9 @@ public interface ProductService {
      */
     List<Product> listByCategory(Category category);
 
+
+    void setSaleAndReviewNumber(List<Product> products);
+
+    void setSaleAndReviewNumber(Product product);
+
 }

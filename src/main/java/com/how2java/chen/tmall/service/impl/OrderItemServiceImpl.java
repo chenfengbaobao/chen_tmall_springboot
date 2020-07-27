@@ -69,6 +69,50 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     }
 
+
+    @Override
+    public void update(OrderItem orderItem) {
+
+        orderItemMapper.updateByPrimaryKeySelective(orderItem);
+    }
+
+    @Override
+    public void add(OrderItem orderItem) {
+
+        orderItemMapper.insertUseGeneratedKeys(orderItem);
+    }
+
+    @Override
+    public void delete(int id) {
+
+        orderItemMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public OrderItem get(int id) {
+        return orderItemMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int getSaleCount(Product product) {
+        int result = 0;
+        List<OrderItem> orderItems = listByProduct(product);
+
+
+
+        for (OrderItem orderItem : orderItems) {
+
+            if (null != orderItem.getOrder() && null != orderItem.getOrder().getPayDate()) {
+
+                result += orderItem.getNumber();
+
+            }
+        }
+
+
+        return result;
+    }
+
     @Override
     public List<OrderItem> listByOrder(Order order) {
 
@@ -80,6 +124,22 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         List<OrderItem> orderItems = orderItemMapper.selectByExample(example);
 
+
+        return orderItems;
+    }
+
+    @Override
+    public List<OrderItem> listByProduct(Product product) {
+
+        Example example = new Example(OrderItem.class);
+        example.createCriteria()
+                .andEqualTo("pid", product.getId());
+
+        example.setOrderByClause("id desc");
+
+        List<OrderItem> orderItems = orderItemMapper.selectByExample(example);
+
+        setProduct(orderItems);
 
         return orderItems;
     }

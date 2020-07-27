@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author : haifeng.wu
@@ -42,8 +43,36 @@ public class Product extends BaseEntity {
     @Column(name = "createDate")
     private Date createDate;
 
+
+    /**
+     *
+     */
     @Transient
     private ProductImage firstProductImage;
 
+
+    /**
+     * 单个产品集合
+     */
+    @Transient
+    private List<ProductImage> productSingleImages;
+
+    /**
+     * 详情产品图片集合
+     */
+    @Transient
+    private List<ProductImage> productDetailImages;
+
+    /**
+     * 累计销量
+     */
+    @Transient
+    private int saleCount;
+
+    /**
+     * 累计评价
+     */
+    @Transient
+    private int reviewCount;
 
 }
