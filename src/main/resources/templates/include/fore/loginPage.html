@@ -46,6 +46,7 @@
         })
     </script>
 
+
     <div id="loginDiv" style="position: relative">
         <div class="simpleLogo">
             <a th:href="${application.contextPath}"><img src="img/site/simpleLogo.png"></a>
@@ -61,17 +62,17 @@
 
             <div class="login_acount_text">账户登录</div>
             <div class="loginInput " >
-                    <span class="loginInputIcon ">
-                        <span class=" glyphicon glyphicon-user"></span>
-                    </span>
+					<span class="loginInputIcon ">
+						<span class=" glyphicon glyphicon-user"></span>
+					</span>
                 <input v-model="user.name" placeholder="手机/会员名/邮箱" type="text">
             </div>
 
             <div class="loginInput " >
-                    <span class="loginInputIcon ">
-                        <span class=" glyphicon glyphicon-lock"></span>
-                    </span>
-                <input v-model="user.password" type="password" placeholder="密码">
+					<span class="loginInputIcon ">
+						<span class=" glyphicon glyphicon-lock"></span>
+					</span>
+                <input v-model="user.password" type="password" placeholder="密码" type="text">
             </div>
             <span class="text-danger">不要输入真实的天猫账号密码</span><br><br>
             <div>
