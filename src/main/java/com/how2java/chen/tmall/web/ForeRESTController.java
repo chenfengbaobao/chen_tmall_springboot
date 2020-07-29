@@ -11,6 +11,7 @@ import org.springframework.web.util.HtmlUtils;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author : haifeng.wu
@@ -103,22 +104,36 @@ public class ForeRESTController {
     }
 
 
+    /**
+     * 产品页
+     *
+     * @param pid
+     * @return
+     */
     @GetMapping("/foreproduct/{pid}")
     public Object produt(@PathVariable("pid") int pid) {
 
+
+        // 1、根据pid参数获取product对象
         Product product = productService.get(pid);
 
+        // 2、根据对象product，获取这个产品对应的【单个】图片集合
         List<ProductImage> singleProductImages = productImageService.listSingleProductImages(product);
 
 
+        // 3、根据对象product，获取这个产品对应的【详情】图片集合
         List<ProductImage> detailProductImages = productImageService.listDetailProductImages(product);
 
+
+        // 4、获取产品的所有属性值
         List<PropertyValue> propertyValues = propertyValueService.list(product);
 
-        int count = reviewService.getCount(product);
 
+        // 5、获取该产品的所有评价
         List<Review> reviews = reviewService.list(product);
 
+
+        // 6、设置产品所有的销量和评价
         productService.setSaleAndReviewNumber(product);
 
         productImageService.setFirstProductImage(product);
@@ -127,6 +142,7 @@ public class ForeRESTController {
         product.setProductDetailImages(detailProductImages);
 
 
+        // 8、把上述所有结果放入map中，返回给前端
         Map<String, Object> result = Maps.newHashMap();
 
         result.put("product", product);
@@ -134,6 +150,26 @@ public class ForeRESTController {
         result.put("reviews", reviews);
 
         return Result.success(result);
+    }
+
+
+    /**
+     * 校验是否登录
+     *
+     * @return
+     */
+    @GetMapping("/forecheckLogin")
+    public Object checkLogin(HttpSession session) {
+
+        User user = (User) session.getAttribute("user");
+
+        if (Objects.isNull(user)) {
+            return Result.fail("用户未登录");
+        }
+
+        return Result.success();
+
+
     }
 
 
