@@ -169,6 +169,23 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Override
+    public List<Product> search(String keyWord, int start, int size) {
+
+        Example example = new Example(Product.class);
+
+        example.createCriteria()
+                .andLike("name", "%" + keyWord + "%");
+
+        example.setOrderByClause("id desc");
+
+        PageHelper.startPage(start, size);
+
+        List<Product> products = productMapper.selectByExample(example);
+
+        return products;
+    }
+
 
     private void setCategory(Product product) {
         Category category = categoryService.get(product.getCid());

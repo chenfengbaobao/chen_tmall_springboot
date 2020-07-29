@@ -62,4 +62,15 @@ public interface ProductService {
 
     void setSaleAndReviewNumber(Product product);
 
+
+    /**
+     * 搜索
+     *
+     * @param keyWord
+     * @param start
+     * @param size
+     * @return
+     */
+    List<Product> search(String keyWord, int start, int size);
+
 }

@@ -1,6 +1,7 @@
 package com.how2java.chen.tmall.web;
 
 import com.google.common.collect.Maps;
+import com.how2java.chen.tmall.comparator.*;
 import com.how2java.chen.tmall.pojo.*;
 import com.how2java.chen.tmall.service.*;
 import com.how2java.chen.tmall.util.Result;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -167,7 +169,68 @@ public class ForeRESTController {
             return Result.fail("用户未登录");
         }
 
+
         return Result.success();
+    }
+
+    @GetMapping("forecategory/{cid}")
+    public Object category(@PathVariable("cid") int cid, String sort) {
+
+        Category category = categoryService.get(cid);
+
+        productService.fill(category);
+
+        productService.setSaleAndReviewNumber(category.getProducts());
+
+        categoryService.removeCategoryFromProduct(category);
+
+        if (null != sort) {
+
+            switch (sort) {
+
+                case "review":
+                    Collections.sort(category.getProducts(), new ProductReviewComparator());
+                    break;
+
+                case "date":
+                    Collections.sort(category.getProducts(), new ProductDateComparator());
+                    break;
+
+                case "saleCount":
+                    Collections.sort(category.getProducts(), new ProductSaleCountComparator());
+                    break;
+
+                case "price":
+                    Collections.sort(category.getProducts(), new ProductPriceComparator());
+                    break;
+
+                default:
+                    Collections.sort(category.getProducts(), new ProductAllComparator());
+
+            }
+
+
+        }
+
+
+        return category;
+    }
+
+
+    @PostMapping("/foresearch")
+    public Object search(String keyword) {
+
+        if (Objects.isNull(keyword)) {
+            keyword = "";
+        }
+
+        List<Product> products = productService.search(keyword, 0, 20);
+
+        productImageService.setFirstProductImage(products);
+
+        productService.setSaleAndReviewNumber(products);
+
+        return products;
 
 
     }
