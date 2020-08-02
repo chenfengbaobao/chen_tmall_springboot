@@ -2,6 +2,7 @@ package com.how2java.chen.tmall.service.impl;
 
 import com.how2java.chen.tmall.configure.PictureEnum;
 import com.how2java.chen.tmall.dao.ProductImageMapper;
+import com.how2java.chen.tmall.pojo.OrderItem;
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.pojo.ProductImage;
 import com.how2java.chen.tmall.service.ProductImageService;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,7 +57,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
         Example example = new Example(ProductImage.class);
         example.createCriteria()
-                .andEqualTo("pid",product.getId())
+                .andEqualTo("pid", product.getId())
                 .andEqualTo("type", PictureEnum.TYPE_SINGLE.getKey());
         example.setOrderByClause("id desc");
 
@@ -70,7 +70,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
         Example example = new Example(ProductImage.class);
         example.createCriteria()
-                .andEqualTo("pid",product.getId())
+                .andEqualTo("pid", product.getId())
                 .andEqualTo("type", PictureEnum.TYPE_DETAIL.getKey());
         example.setOrderByClause("id desc");
 
@@ -82,8 +82,8 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     public void setFirstProductImage(Product product) {
         List<ProductImage> singleImages = listSingleProductImages(product);
-        if (!CollectionUtils.isEmpty(singleImages)){
-          product.setFirstProductImage(singleImages.get(0));
+        if (!CollectionUtils.isEmpty(singleImages)) {
+            product.setFirstProductImage(singleImages.get(0));
         } else {
             product.setFirstProductImage(new ProductImage());
         }
@@ -94,6 +94,13 @@ public class ProductImageServiceImpl implements ProductImageService {
         for (Product p : product) {
             setFirstProductImage(p);
 
+        }
+    }
+
+    @Override
+    public void setFirstProductImagesOnOrderItems(List<OrderItem> items) {
+        for (OrderItem item : items) {
+            setFirstProductImage(item.getProduct());
         }
     }
 

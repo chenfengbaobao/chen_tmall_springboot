@@ -3,6 +3,7 @@ package com.how2java.chen.tmall.service;
 import com.how2java.chen.tmall.pojo.Order;
 import com.how2java.chen.tmall.pojo.OrderItem;
 import com.how2java.chen.tmall.pojo.Product;
+import com.how2java.chen.tmall.pojo.User;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface OrderItemService {
 
     void update(OrderItem orderItem);
 
-    void add(OrderItem orderItem);
+    Integer add(OrderItem orderItem);
 
     void delete(int id);
 
@@ -33,6 +34,9 @@ public interface OrderItemService {
 
 
     List<OrderItem> listByProduct(Product product);
+
+
+    List<OrderItem> listByUser(User user);
 
 
 }

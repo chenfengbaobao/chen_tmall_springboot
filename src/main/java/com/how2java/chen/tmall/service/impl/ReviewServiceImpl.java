@@ -4,6 +4,7 @@ import com.how2java.chen.tmall.dao.ReviewMapper;
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.pojo.Review;
 import com.how2java.chen.tmall.service.ReviewService;
+import com.how2java.chen.tmall.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -20,6 +21,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private ReviewMapper reviewMapper;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public void add(Review review) {
@@ -38,6 +42,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         List<Review> reviews = reviewMapper.selectByExample(example);
 
+        setUser(reviews);
+
         return reviews;
     }
 
@@ -51,5 +57,13 @@ public class ReviewServiceImpl implements ReviewService {
         int count = reviewMapper.selectCountByExample(example);
 
         return count;
+    }
+
+    private void setUser(List<Review> reviews) {
+        for (Review review : reviews) {
+
+
+            review.setUser(userService.get(review.getUid()));
+        }
     }
 }

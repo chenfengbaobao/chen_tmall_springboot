@@ -5,15 +5,13 @@ import com.how2java.chen.tmall.pojo.Order;
 import com.how2java.chen.tmall.pojo.OrderItem;
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.pojo.User;
-import com.how2java.chen.tmall.service.OrderItemService;
-import com.how2java.chen.tmall.service.ProductImageService;
-import com.how2java.chen.tmall.service.ProductService;
-import com.how2java.chen.tmall.service.UserService;
+import com.how2java.chen.tmall.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author : haifeng.wu
@@ -35,6 +33,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrderService orderService;
 
     @Override
     public void fill(List<Order> orders) {
@@ -77,9 +78,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public void add(OrderItem orderItem) {
+    public Integer add(OrderItem orderItem) {
 
-        orderItemMapper.insertUseGeneratedKeys(orderItem);
+        return orderItemMapper.insertUseGeneratedKeys(orderItem);
     }
 
     @Override
@@ -90,14 +91,18 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public OrderItem get(int id) {
-        return orderItemMapper.selectByPrimaryKey(id);
+        OrderItem orderItem = orderItemMapper.selectByPrimaryKey(id);
+        Product product = productService.get(orderItem.getPid());
+
+        orderItem.setProduct(product);
+
+        return orderItem;
     }
 
     @Override
     public int getSaleCount(Product product) {
         int result = 0;
         List<OrderItem> orderItems = listByProduct(product);
-
 
 
         for (OrderItem orderItem : orderItems) {
@@ -140,6 +145,24 @@ public class OrderItemServiceImpl implements OrderItemService {
         List<OrderItem> orderItems = orderItemMapper.selectByExample(example);
 
         setProduct(orderItems);
+        setOrder(orderItems);
+
+
+        return orderItems;
+    }
+
+    @Override
+    public List<OrderItem> listByUser(User user) {
+
+        Example example = new Example(OrderItem.class);
+
+        example.createCriteria()
+                .andEqualTo("uid", user.getId())
+                .andIsNull("oid");
+
+        List<OrderItem> orderItems = orderItemMapper.selectByExample(example);
+
+        setProduct(orderItems);
 
         return orderItems;
     }
@@ -150,6 +173,18 @@ public class OrderItemServiceImpl implements OrderItemService {
         for (OrderItem orderItem : orderItems) {
             Product product = productService.get(orderItem.getPid());
             orderItem.setProduct(product);
+        }
+
+    }
+
+    private void setOrder(List<OrderItem> orderItems) {
+
+        for (OrderItem orderItem : orderItems) {
+            if (Objects.nonNull(orderItem.getOid())) {
+                Order order = orderService.get(orderItem.getOid());
+                orderItem.setOrder(order);
+            }
+
         }
 
     }

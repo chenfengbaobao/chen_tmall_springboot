@@ -91,11 +91,16 @@ public class CategoryServiceImpl implements CategoryService {
 
         if (!CollectionUtils.isEmpty(products)) {
             List<List<Product>> productsByRow = category.getProductsByRow();
-            for (List<Product> productList : productsByRow) {
-                for (Product product : productList) {
-                    product.setCategory(null);
+
+            if (!CollectionUtils.isEmpty(productsByRow)) {
+                for (List<Product> productList : productsByRow) {
+                    for (Product product : productList) {
+                        product.setCategory(null);
+                    }
                 }
             }
+
+
         }
 
 

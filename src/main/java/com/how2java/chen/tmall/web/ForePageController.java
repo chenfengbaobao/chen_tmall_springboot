@@ -1,5 +1,7 @@
 package com.how2java.chen.tmall.web;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -15,7 +17,6 @@ import javax.servlet.http.HttpSession;
 @Controller
 public class ForePageController {
 
-
     @GetMapping(value = "/")
     public String index() {
         return "redirect:home";
@@ -30,6 +31,7 @@ public class ForePageController {
     public String register() {
         return "fore/register";
     }
+
 
     @GetMapping(value = "/alipay")
     public String alipay() {
@@ -96,11 +98,32 @@ public class ForePageController {
         return "fore/search";
     }
 
+//    @GetMapping("/forelogout")
+//    public String logout() {
+//        return "redirect:home";
+//    }
 
     @GetMapping("/forelogout")
     public String logout(HttpSession session) {
-        session.removeAttribute("user");
+
+        Subject subject = SecurityUtils.getSubject();
+        if (subject.isAuthenticated()) {
+            subject.logout();
+        }
         return "redirect:home";
     }
+
+    @GetMapping(value = "/foreproduct")
+    public String foreproduct() {
+        return "fore/product";
+    }
+
+    @GetMapping(value = "/foreproduct/null")
+    public String foreproduct2(Integer id,Integer productid) {
+        System.out.println(id);
+
+        return "fore/product";
+    }
+
 
 }

@@ -8,11 +8,13 @@ import com.how2java.chen.tmall.pojo.Category;
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.service.*;
 import com.how2java.chen.tmall.util.Page4Navigator;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author : haifeng.wu
@@ -174,8 +176,11 @@ public class ProductServiceImpl implements ProductService {
 
         Example example = new Example(Product.class);
 
-        example.createCriteria()
-                .andLike("name", "%" + keyWord + "%");
+        if (StringUtils.isNotBlank(keyWord) && !Objects.equals("null", keyWord)) {
+            example.createCriteria()
+                    .andLike("name", "%" + keyWord + "%");
+
+        }
 
         example.setOrderByClause("id desc");
 

@@ -38,7 +38,7 @@ public class OrderController {
 
         orderItemService.fill(page.getContent());
 
-        orderService.removeFromOrderItem(page.getContent());
+        orderService.removeOrderFromOrderItem(page.getContent());
 
         return page;
     }

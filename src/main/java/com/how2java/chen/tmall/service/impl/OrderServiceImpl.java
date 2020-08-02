@@ -6,11 +6,14 @@ import com.how2java.chen.tmall.dao.OrderMapper;
 import com.how2java.chen.tmall.pojo.Order;
 import com.how2java.chen.tmall.pojo.OrderItem;
 import com.how2java.chen.tmall.pojo.User;
+import com.how2java.chen.tmall.service.OrderItemService;
 import com.how2java.chen.tmall.service.OrderService;
 import com.how2java.chen.tmall.service.UserService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
@@ -27,6 +30,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrderItemService orderItemService;
 
 
     @Override
@@ -48,14 +54,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void removeFromOrderItem(List<Order> orders) {
+    public void removeOrderFromOrderItem(List<Order> orders) {
         for (Order order : orders) {
-            removeFromOrderItem(order);
+            removeOrderFromOrderItem(order);
         }
     }
 
     @Override
-    public void removeFromOrderItem(Order order) {
+    public void removeOrderFromOrderItem(Order order) {
         List<OrderItem> orderItems = order.getOrderItems();
         for (OrderItem item : orderItems) {
             item.setOrder(null);
@@ -72,7 +78,75 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateByPrimaryKeySelective(order);
     }
 
-    private void setUser(List<Order> orders){
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackForClassName = "Exception")
+    @Override
+    public float add(Order order, List<OrderItem> ois) {
+        float total = 0;
+
+        add(order);
+
+        if (false) {
+            throw new RuntimeException();
+        }
+
+        for (OrderItem item : ois) {
+            item.setOid(order.getId());
+
+            orderItemService.update(item);
+
+            total += item.getProduct().getPromotePrice() * item.getNumber();
+
+        }
+
+        return total;
+
+    }
+
+    @Override
+    public void add(Order order) {
+        orderMapper.insertUseGeneratedKeys(order);
+    }
+
+    @Override
+    public List<Order> listByUserWithoutDelete(User user) {
+        List<Order> orders = listByUserAndNotDelete(user);
+
+        orderItemService.fill(orders);
+
+        return orders;
+    }
+
+    @Override
+    public List<Order> listByUserAndNotDelete(User user) {
+        Example example = new Example(Order.class);
+
+        example.createCriteria()
+                .andEqualTo("uid", user.getId())
+                .andIsNotNull("status");
+
+        example.setOrderByClause("id desc");
+
+        List<Order> orders = orderMapper.selectByExample(example);
+
+
+        return orders;
+    }
+
+    @Override
+    public void cacl(Order order) {
+
+        List<OrderItem> orderItems = order.getOrderItems();
+        float total = 0;
+        for (OrderItem orderItem : orderItems) {
+            total += orderItem.getProduct().getPromotePrice() * orderItem.getNumber();
+        }
+
+        order.setTotal(total);
+    }
+
+
+    private void setUser(List<Order> orders) {
 
         for (Order order : orders) {
             User user = userService.get(order.getUid());
@@ -80,4 +154,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.how2java.chen.tmall.service;
 
+import com.how2java.chen.tmall.pojo.OrderItem;
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.pojo.ProductImage;
 
@@ -40,6 +41,9 @@ public interface ProductImageService {
 
 
     void setFirstProductImage(List<Product> product);
+
+
+    void setFirstProductImagesOnOrderItems(List<OrderItem> items);
 
 
 }
