@@ -1,14 +1,14 @@
 package com.how2java.chen.tmall.interceptor;
 
-import com.how2java.chen.tmall.pojo.User;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Objects;
 
 /**
  * 登录拦截器
@@ -55,13 +55,18 @@ public class LoginInterceptor implements HandlerInterceptor {
         String page = uri;
 
         if (beginWith(page, requireAuthPages)) {
-
-            User user = (User) session.getAttribute("user");
-            if (Objects.isNull(user)) {
-
+            Subject subject = SecurityUtils.getSubject();
+            if (!subject.isAuthenticated()) {
                 response.sendRedirect("login");
                 return false;
             }
+//
+//            User user = (User) session.getAttribute("user");
+//            if (Objects.isNull(user)) {
+//
+//                response.sendRedirect("login");
+//                return false;
+//            }
 
         }
 

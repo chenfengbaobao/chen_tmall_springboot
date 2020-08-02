@@ -119,7 +119,7 @@ public class ForePageController {
     }
 
     @GetMapping(value = "/foreproduct/null")
-    public String foreproduct2(Integer id,Integer productid) {
+    public String foreproduct2(Integer id, Integer productid) {
         System.out.println(id);
 
         return "fore/product";
