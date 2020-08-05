@@ -8,6 +8,9 @@ import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.service.CategoryService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
@@ -19,7 +22,7 @@ import java.util.List;
  * @Date : 2020-07-14 22:48:12
  */
 
-
+@CacheConfig(cacheNames = "categories")
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -28,6 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    @Cacheable(key = "'categories-page-'+#p0+ '-' + #p1")
     public Page4Navigator<Category> list(int start, int size, int navigatePages) {
 
 
@@ -41,6 +45,8 @@ public class CategoryServiceImpl implements CategoryService {
         return new Page4Navigator<>(pageInfo, navigatePages);
     }
 
+
+    @Cacheable(key = "'categories-all'")
     @Override
     public List<Category> list() {
         Example example = new Example(Category.class);
@@ -48,13 +54,13 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.selectByExample(example);
     }
 
-
+    @CacheEvict(allEntries = true)
     @Override
     public void add(Category bean) {
         categoryMapper.insertSelective(bean);
     }
 
-
+    @CacheEvict(allEntries = true)
     @Override
     public void delete(int id) {
         categoryMapper.deleteByPrimaryKey(id);
@@ -62,11 +68,13 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    @Cacheable(key = "'categories-one-'+ #p0")
     public Category get(int id) {
         Category c = categoryMapper.selectByPrimaryKey(id);
         return c;
     }
 
+    @CacheEvict(allEntries = true)
     @Override
     public void update(Category bean) {
         categoryMapper.updateByPrimaryKeySelective(bean);
