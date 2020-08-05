@@ -5,8 +5,6 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.servlet.http.HttpSession;
-
 /**
  * 前台页面跳转
  *
@@ -104,7 +102,7 @@ public class ForePageController {
 //    }
 
     @GetMapping("/forelogout")
-    public String logout(HttpSession session) {
+    public String logout() {
 
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {

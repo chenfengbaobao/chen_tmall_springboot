@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author : haifeng.wu
@@ -46,22 +47,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isExist(String name) {
 
-        List<User> users = getByName(name);
+        User user = getByName(name);
 
-
-        return !CollectionUtils.isEmpty(users);
+        return Objects.nonNull(user);
     }
 
     @Override
-    public List<User> getByName(String name) {
+    public User getByName(String name) {
 
         Example example = new Example(User.class);
         example.createCriteria()
                 .andEqualTo("name", name);
 
         List<User> users = userMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(users)) {
+            return null;
+        }
 
-        return users;
+        return users.get(0);
     }
 
     @Override

@@ -122,7 +122,7 @@ public class ForeRESTController {
 
         try {
             subject.login(token);
-            User userInfo = userService.getByNameAndPassword(name, user.getPassword());
+            User userInfo = userService.getByName(name);
 
             session.setAttribute("user", userInfo);
 

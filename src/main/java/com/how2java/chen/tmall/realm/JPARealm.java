@@ -33,7 +33,7 @@ public class JPARealm extends AuthorizingRealm {
 
 
         String userName = authenticationToken.getPrincipal().toString();
-        User user = userService.getByName(userName).get(0);
+        User user = userService.getByName(userName);
 
         String passwordInDB = user.getPassword();
         String salt = user.getSalt();

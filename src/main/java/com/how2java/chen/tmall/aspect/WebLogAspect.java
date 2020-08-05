@@ -90,7 +90,7 @@ public class WebLogAspect {
 
             return "IOException.输出对象是文件";
         } catch (Throwable throwable) {
-            log.info("有异常抛出.Error.WebLogAspect.expection:{}", JSON.toJSONString(throwable));
+            log.info("有异常抛出.Error.WebLogAspect.exception:{}", JSON.toJSONString(throwable));
 
             returnValue = throwable;
             throwable.printStackTrace();

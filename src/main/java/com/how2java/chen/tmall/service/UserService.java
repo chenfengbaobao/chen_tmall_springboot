@@ -27,7 +27,7 @@ public interface UserService {
 
     boolean isExist(String name);
 
-    List<User> getByName(String name);
+    User getByName(String name);
 
     void add(User user);
 
