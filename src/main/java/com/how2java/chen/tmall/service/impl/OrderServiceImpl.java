@@ -11,6 +11,9 @@ import com.how2java.chen.tmall.service.OrderService;
 import com.how2java.chen.tmall.service.UserService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,8 @@ import java.util.List;
  * @Author : haifeng.wu
  * @Date : 2020-07-26 16:09:05
  */
+
+@CacheConfig(cacheNames = "orders")
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -73,12 +78,15 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.selectByPrimaryKey(id);
     }
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public void update(Order order) {
         orderMapper.updateByPrimaryKeySelective(order);
     }
 
 
+    @CacheEvict(allEntries = true)
     @Transactional(propagation = Propagation.REQUIRED, rollbackForClassName = "Exception")
     @Override
     public float add(Order order, List<OrderItem> ois) {
@@ -103,6 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @CacheEvict(allEntries = true)
     @Override
     public void add(Order order) {
         orderMapper.insertUseGeneratedKeys(order);
@@ -117,6 +126,8 @@ public class OrderServiceImpl implements OrderService {
         return orders;
     }
 
+
+    @Cacheable(key = "'orders-uid-'+#p0.id")
     @Override
     public List<Order> listByUserAndNotDelete(User user) {
         Example example = new Example(Order.class);

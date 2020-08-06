@@ -7,6 +7,9 @@ import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.pojo.User;
 import com.how2java.chen.tmall.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
@@ -19,6 +22,8 @@ import java.util.Objects;
  */
 
 
+
+@CacheConfig(cacheNames = "orderItems")
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
 
@@ -71,24 +76,32 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
 
+    @CacheEvict(allEntries = true)
     @Override
     public void update(OrderItem orderItem) {
 
         orderItemMapper.updateByPrimaryKeySelective(orderItem);
     }
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public Integer add(OrderItem orderItem) {
 
         return orderItemMapper.insertUseGeneratedKeys(orderItem);
     }
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public void delete(int id) {
 
         orderItemMapper.deleteByPrimaryKey(id);
     }
 
+
+
+    @Cacheable(key = "'orderItems-one-' + #p0")
     @Override
     public OrderItem get(int id) {
         OrderItem orderItem = orderItemMapper.selectByPrimaryKey(id);
@@ -118,6 +131,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         return result;
     }
 
+
+    @Cacheable(key = "'orderItems-oid'+#p0.id")
     @Override
     public List<OrderItem> listByOrder(Order order) {
 
@@ -133,6 +148,9 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItems;
     }
 
+
+
+    @Cacheable(key = "'orderItems-pid'+#p0.id")
     @Override
     public List<OrderItem> listByProduct(Product product) {
 
@@ -151,6 +169,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItems;
     }
 
+
+    @Cacheable(key = "'orderItems-uid'+#p0.id")
     @Override
     public List<OrderItem> listByUser(User user) {
 

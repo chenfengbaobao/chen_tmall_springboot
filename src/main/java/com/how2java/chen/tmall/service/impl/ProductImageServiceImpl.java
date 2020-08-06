@@ -8,6 +8,9 @@ import com.how2java.chen.tmall.pojo.ProductImage;
 import com.how2java.chen.tmall.service.ProductImageService;
 import com.how2java.chen.tmall.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
@@ -20,6 +23,7 @@ import java.util.List;
  */
 
 
+@CacheConfig(cacheNames = "productImages")
 @Service
 public class ProductImageServiceImpl implements ProductImageService {
 
@@ -30,12 +34,14 @@ public class ProductImageServiceImpl implements ProductImageService {
     private ProductService productService;
 
 
+    @CacheEvict(allEntries = true)
     @Override
     public Integer add(ProductImage productImage) {
 
         return productImageMapper.insertUseGeneratedKeys(productImage);
     }
 
+    @CacheEvict(allEntries = true)
     @Override
     public void delete(int id) {
 
@@ -52,6 +58,8 @@ public class ProductImageServiceImpl implements ProductImageService {
         return productImage;
     }
 
+
+    @Cacheable(key = "'productImages-single-pid'+#p0.id")
     @Override
     public List<ProductImage> listSingleProductImages(Product product) {
 
@@ -65,6 +73,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         return images;
     }
 
+    @Cacheable(key = "'productImages-detail-pid'+#p0.id")
     @Override
     public List<ProductImage> listDetailProductImages(Product product) {
 

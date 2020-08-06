@@ -8,8 +8,12 @@ import com.how2java.chen.tmall.pojo.Category;
 import com.how2java.chen.tmall.pojo.Product;
 import com.how2java.chen.tmall.service.*;
 import com.how2java.chen.tmall.util.Page4Navigator;
+import com.how2java.chen.tmall.util.SpringContextUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
@@ -22,6 +26,7 @@ import java.util.Objects;
  */
 
 @Service
+@CacheConfig(cacheNames = "products")
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -40,16 +45,20 @@ public class ProductServiceImpl implements ProductService {
     private ReviewService reviewService;
 
 
+    @CacheEvict(allEntries = true)
     @Override
     public void add(Product product) {
         productMapper.insertSelective(product);
     }
 
+    @CacheEvict(allEntries = true)
     @Override
     public void delete(int id) {
         productMapper.deleteByPrimaryKey(id);
     }
 
+
+    @Cacheable(key = "'products-one-'+ #p0")
     @Override
     public Product get(int id) {
 
@@ -60,11 +69,14 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
+    @CacheEvict(allEntries = true)
     @Override
     public void update(Product product) {
         productMapper.updateByPrimaryKey(product);
     }
 
+
+    @Cacheable(key = "'products-cid-'+#p0+'-page-'+#p1 + '-' + #p2 ")
     @Override
     public Page4Navigator<Product> list(int cid, int start, int size, int navigatePages) {
 
@@ -100,7 +112,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void fill(Category category) {
 
-        List<Product> products = listByCategory(category);
+        ProductService productService = SpringContextUtil.getBean(ProductService.class);
+        List<Product> products = productService.listByCategory(category);
         productImageService.setFirstProductImage(products);
 
         category.setProducts(products);
@@ -133,6 +146,8 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+
+    @Cacheable(key = "'products-cid-'+ #p0.id")
     @Override
     public List<Product> listByCategory(Category category) {
 

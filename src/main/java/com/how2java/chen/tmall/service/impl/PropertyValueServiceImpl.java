@@ -8,6 +8,9 @@ import com.how2java.chen.tmall.service.ProductService;
 import com.how2java.chen.tmall.service.PropertyService;
 import com.how2java.chen.tmall.service.PropertyValueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
@@ -20,6 +23,7 @@ import java.util.Objects;
  * @Date : 2020-07-25 19:26:38
  */
 
+@CacheConfig(cacheNames = "propertyValues")
 @Service
 public class PropertyValueServiceImpl implements PropertyValueService {
 
@@ -33,6 +37,7 @@ public class PropertyValueServiceImpl implements PropertyValueService {
     private ProductService productService;
 
 
+    @CacheEvict(allEntries = true)
     @Override
     public void update(PropertyValue propertyValue) {
         propertyValueMapper.updateByPrimaryKey(propertyValue);
@@ -63,6 +68,7 @@ public class PropertyValueServiceImpl implements PropertyValueService {
 
     }
 
+    @Cacheable(key = "'propertyValues-one-pid'+#p0.id+'-ptid-'+#p1.id")
     @Override
     public PropertyValue getByProductAndProduct(Product product, Property property) {
         Example example = new Example(PropertyValue.class);
@@ -82,6 +88,8 @@ public class PropertyValueServiceImpl implements PropertyValueService {
         return null;
     }
 
+
+    @Cacheable(key = "'propertyValues-pid-'+#p0.id")
     @Override
     public List<PropertyValue> list(Product product) {
 

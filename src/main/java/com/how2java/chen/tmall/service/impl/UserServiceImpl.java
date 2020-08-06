@@ -7,6 +7,9 @@ import com.how2java.chen.tmall.pojo.User;
 import com.how2java.chen.tmall.service.UserService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
@@ -19,13 +22,14 @@ import java.util.Objects;
  * @Date : 2020-07-26 15:04:41
  */
 
-
+@CacheConfig(cacheNames = "users")
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
 
+    @Cacheable(key = "'users-page-'+#p0+ '-' + #p1")
     @Override
     public Page4Navigator<User> list(int start, int size, int navigatePages) {
 
@@ -52,6 +56,8 @@ public class UserServiceImpl implements UserService {
         return Objects.nonNull(user);
     }
 
+
+    @Cacheable(key = "'users-one-name-'+#p0")
     @Override
     public User getByName(String name) {
 
@@ -67,6 +73,8 @@ public class UserServiceImpl implements UserService {
         return users.get(0);
     }
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public void add(User user) {
         userMapper.insertUseGeneratedKeys(user);

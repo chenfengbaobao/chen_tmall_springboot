@@ -6,6 +6,9 @@ import com.how2java.chen.tmall.pojo.Review;
 import com.how2java.chen.tmall.service.ReviewService;
 import com.how2java.chen.tmall.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
@@ -17,6 +20,7 @@ import java.util.List;
  */
 
 @Service
+@CacheConfig(cacheNames = "reviews")
 public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
@@ -25,12 +29,16 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private UserService userService;
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public void add(Review review) {
 
         reviewMapper.insertUseGeneratedKeys(review);
     }
 
+
+    @Cacheable(key = "'reviews-pid-'+#p0.id")
     @Override
     public List<Review> list(Product product) {
 
@@ -47,6 +55,8 @@ public class ReviewServiceImpl implements ReviewService {
         return reviews;
     }
 
+
+    @Cacheable(key = "'reviews-count-pid'+#p0.id")
     @Override
     public int getCount(Product product) {
 

@@ -9,6 +9,9 @@ import com.how2java.chen.tmall.service.CategoryService;
 import com.how2java.chen.tmall.service.PropertyService;
 import com.how2java.chen.tmall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
@@ -20,6 +23,7 @@ import java.util.List;
  */
 
 @Service
+@CacheConfig(cacheNames = "properties")
 public class PropertyServiceImpl implements PropertyService {
 
     @Autowired
@@ -29,6 +33,7 @@ public class PropertyServiceImpl implements PropertyService {
     private CategoryService categoryService;
 
 
+    @CacheEvict(allEntries = true)
     @Override
     public Integer add(Property property) {
         property.setCid(property.getCategory().getId());
@@ -36,11 +41,15 @@ public class PropertyServiceImpl implements PropertyService {
         return generatedKeys;
     }
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public void delete(int id) {
         propertyMapper.deleteByPrimaryKey(id);
     }
 
+
+    @Cacheable(key = "'properties-one-'+#p0")
     @Override
     public Property get(int id) {
         Property property = propertyMapper.selectByPrimaryKey(id);
@@ -50,11 +59,14 @@ public class PropertyServiceImpl implements PropertyService {
         return property;
     }
 
+
+    @CacheEvict(allEntries = true)
     @Override
     public void update(Property property) {
         propertyMapper.updateByPrimaryKeySelective(property);
     }
 
+    @Cacheable(key = "'properties-cid-'+#p0+'-page-'+#p1 +'-' + #p2")
     @Override
     public Page4Navigator<Property> list(int cid, int start, int size, int navigatePages) {
         Category category = categoryService.get(cid);
@@ -76,6 +88,7 @@ public class PropertyServiceImpl implements PropertyService {
         return new Page4Navigator<>(pageInfo, navigatePages);
     }
 
+    @Cacheable(key = "'properties-cid-'+#p0.id")
     @Override
     public List<Property> listByCategory(Category category) {
 
